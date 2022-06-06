@@ -1,0 +1,99 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import firebase from 'firebase/compat/app';
+import { showMessage } from 'app/store/fuse/messageSlice';
+
+import { getChats, getChat } from './chatSlice';
+import { closeMobileChatsSidebar } from './sidebarsSlice';
+import { getHistories, getHistory } from './historySlice';
+
+export const getCustomer = createAsyncThunk(
+  'chatApp/customers/getCustomer',
+  async ({ customerId, isMobile }, { dispatch, getState }) => {
+    try {
+      const { token } = await firebase.auth().currentUser.getIdTokenResult();
+      if (!token) return null;
+      if (!customerId) return null;
+      const { id: orgId } = getState().auth.organization.organization;
+      const response = await axios.get(`/api/${orgId}/customer`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          id: customerId,
+        },
+      });
+      const customer = await response.data;
+
+      if (isMobile) {
+        dispatch(closeMobileChatsSidebar());
+      }
+      return customer;
+    } catch (error) {
+      dispatch(showMessage({ message: 'Get Customer error', variant: 'error' }));
+      return null;
+    }
+  }
+);
+
+export const updateCustomer = createAsyncThunk(
+  'chatApp/customers/updateCustomer',
+  async (customer, { dispatch, getState }) => {
+    try {
+      const { token } = await firebase.auth().currentUser.getIdTokenResult();
+      if (!token) return null;
+      const { id: orgId } = getState().auth.organization.organization;
+      const response = await axios.put(
+        `/api/${orgId}/customer`,
+        { customer },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const customerResult = await response.data;
+      const { selected, selectType, listType } = getState().chatApp.current;
+      if (selectType === 'chat') {
+        dispatch(getChat({ chatId: selected.id }));
+        dispatch(getChats(listType));
+      }
+      if (selectType === 'history') {
+        dispatch(getHistory({ historyId: selected.id }));
+        dispatch(getHistories());
+      }
+
+      dispatch(showMessage({ message: 'Customer Updated', variant: 'success' }));
+      return customerResult;
+    } catch (error) {
+      dispatch(showMessage({ message: 'Update Customer error', variant: 'error' }));
+      return null;
+    }
+  }
+);
+
+const customerSlice = createSlice({
+  name: 'foxChatApp/customers',
+  initialState: {
+    customer: null,
+  },
+  reducers: {
+    setCustomer: (state, action) => {
+      state.customer = action.payload;
+    },
+  },
+  extraReducers: {
+    [getCustomer.fulfilled]: (state, action) => {
+      state.customer = action.payload;
+    },
+    [updateCustomer.fulfilled]: (state, action) => {
+      state.customer = action.payload;
+    },
+  },
+});
+
+export const { setCustomer } = customerSlice.actions;
+
+export default customerSlice.reducer;
