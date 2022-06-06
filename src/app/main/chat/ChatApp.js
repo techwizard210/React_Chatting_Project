@@ -13,6 +13,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import withReducer from 'app/store/withReducer';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useLocation } from "react-router-dom";
 import clsx from 'clsx';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -141,6 +142,7 @@ function ChatApp(props) {
   const chat = useSelector(({ chatApp }) => chatApp.chat);
   const mobileChatsSidebarOpen = useSelector(({ chatApp }) => chatApp.sidebars.mobileChatsSidebarOpen);
   const customerSidebarOpen = useSelector(({ chatApp }) => chatApp.sidebars.customerSidebarOpen);
+  const location = useLocation();
 
   const selected = useSelector(({ chatApp }) => chatApp.current.selected);
   const selectType = useSelector(({ chatApp }) => chatApp.current.selectType);
@@ -149,7 +151,7 @@ function ChatApp(props) {
 
   const [processId, setProcessId] = useState();
 
-  const [searchParams, setSearchParams] = useState(qs.parse(props.location.search, { ignoreQueryPrefix: true }));
+  const [searchParams, setSearchParams] = useState(qs.parse(location.search, { ignoreQueryPrefix: true }));
   // console.log('@@ searchParams: ', searchParams);
   // searchParams.get("__firebase_request_key")
 
@@ -251,7 +253,7 @@ function ChatApp(props) {
                 variant="temporary"
                 anchor="left"
                 open={mobileChatsSidebarOpen}
-                onOpen={(ev) => {}}
+                onOpen={(ev) => { }}
                 onClose={() => dispatch(closeMobileChatsSidebar())}
                 disableSwipeToOpen
                 classes={{
@@ -276,8 +278,8 @@ function ChatApp(props) {
                 className="h-full z-20"
                 variant="permanent"
                 open
-                onOpen={(ev) => {}}
-                onClose={(ev) => {}}
+                onOpen={(ev) => { }}
+                onClose={(ev) => { }}
               >
                 <ChatsSidebar />
               </StyledSwipeableDrawer>
@@ -399,9 +401,8 @@ function ChatApp(props) {
                                       variant="outlined"
                                       color="error"
                                       className="w-min m-8"
-                                      label={`TeamChat mention: ${
-                                        selected.mention.filter((el) => !el.isRead && el.user.id === userId).length
-                                      }`}
+                                      label={`TeamChat mention: ${selected.mention.filter((el) => !el.isRead && el.user.id === userId).length
+                                        }`}
                                     />
                                   )}
                               </Hidden>
@@ -420,9 +421,8 @@ function ChatApp(props) {
                                       variant="outlined"
                                       color="error"
                                       className="w-min m-8"
-                                      label={`Mention: ${
-                                        selected.mention.filter((el) => !el.isRead && el.user.id === userId).length
-                                      }`}
+                                      label={`Mention: ${selected.mention.filter((el) => !el.isRead && el.user.id === userId).length
+                                        }`}
                                     />
                                   )}
                               </Hidden>
@@ -490,7 +490,7 @@ function ChatApp(props) {
               variant="temporary"
               anchor="right"
               open={customerSidebarOpen}
-              onOpen={(ev) => {}}
+              onOpen={(ev) => { }}
               onClose={() => dispatch(closeCustomerSidebar())}
               classes={{
                 paper: 'absolute ltr:right-0 rtl:left-0',
